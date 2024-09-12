@@ -1,0 +1,16 @@
+{
+  "name": "github_activity",
+  "version": "1.0.0",
+  "main": "main.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "github-activity": "main.js"
+  },
+  "keywords": [],
+  "author": "aimless-coder",
+  "license": "ISC",
+  "description": ""
+}
