@@ -66,39 +66,65 @@ const generateEventDescription = (event) => {
 const getActivity = async() => {
 
     const username = argv[0];
+    const eventType = argv[1];
+    const activity = [];
+
     const url = `https://api.github.com/users/${username}/events`;
 
-    if(!username){
-        console.log("Username cannot be empty");
-        showHelp();
-    }else{
-        try {
-            const res = await fetch(url);
-            const data = await res.json();
-    
-            if(data.status === "404"){
-                console.error("Username not found.");
-            } else {
-                console.log(`Github Activity of ${username}: `);
-                Object.keys(data).forEach(key => {
+    try{
+        if(!username){
+            console.log("Username cannot be empty");
+            showHelp();
+        }else{
+                const res = await fetch(url);
+                const data = await res.json();
+        
+                if(data.message === "Not Found"){
+                    throw new Error;
+                } else if(eventType){
+                   Object.keys(data).forEach(key => {
                     const event = data[key];
-                    const activity = generateEventDescription(event);
-                    console.log(activity);
+                        if(event.type === eventType){
+                            const generatedData = generateEventDescription(event);
+                            activity.push(generatedData);
+                        }
                 });
+                } else {
+                    Object.keys(data).forEach(key => {
+                        const event = data[key];
+                        const generatedData = generateEventDescription(event);
+                        activity.push(generatedData);
+                });
+                };
+    
+                if(activity.length === 0){
+                    if(eventType){
+                        console.log(`No activity found of ${eventType} for ${username}`);
+                        showHelp();
+                    }
+                    else{
+                        console.log(`No event found for ${username}`);
+                    }
+                }else{
+                    console.log(`Github Activity of ${username}: `)
+                    activity.forEach(activity => console.log(activity));
+                }
             }
-        } catch (error) {
-            console.error(error);
-        }
-    } 
-};
+    }
+    catch (error) {
+            console.error("Error: Unable to fetch data. Please check your network connection or try again later.");
+        console.error(error);
+    }
+    };
 
 //Show help menu
 const showHelp = () => {
     console.log(`
-Usage: github-activity <username>
+Usage: github-activity <username> <eventName(Optional)>
 
 Examples:
-  github-activity johndoe      Fetch and display the GitHub activity of the user 'johndoe'
+  github-activity johndoe                     Fetch and display the GitHub activity of the user 'johndoe'
+  github-activity johndoe PushEvent           Fetch and display only PushEvent for 'johndoe'
 `);
 };
 
